@@ -1,10 +1,12 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import Modal from "../UI/Modal";
 import classes from './Cart.module.css'
 import CartContext from "../Context/Cart-context";
 import CartItem from "./CartItem";
+import UserForm from "../Forms/userForm";
 
 const Cart = props => {
+    const [showForm, setShowForm] = useState(false)
     const cartCtx = useContext(CartContext)
     const totalAmount = `₹${cartCtx.totalAmount.toFixed(2)}`
     const isEmpty = cartCtx.items.length > 0
@@ -17,6 +19,14 @@ const Cart = props => {
         cartCtx.removeItem(id)
     }
 
+    const orderHandler = () => {
+        setShowForm(true)
+    }
+
+    const cancelCart = () => {
+        setShowForm(false)
+    }
+
     const cartItems = cartCtx.items.map(item =>
         <CartItem
             key={item.id}
@@ -26,6 +36,13 @@ const Cart = props => {
             onRemove={removeItemHandler.bind(null, item.id)}
             onAdd={addItemHandler.bind(null, item)} />
     )
+
+
+    const actionButtons = <div className={classes.actions}>
+        <button onClick={props.onClose} className={classes['button--alt']}>Close</button>
+        {isEmpty && <button className={classes.button} onClick={orderHandler}>Order</button>}
+    </div>
+
     return (
         <Modal closeModal={props.onClose}>
             <ul className={classes['cart-items']}>
@@ -35,10 +52,8 @@ const Cart = props => {
                 <span>Total Price</span>
                 <span>{totalAmount}</span>
             </div>
-            <div className={classes.actions}>
-                <button onClick={props.onClose} className={classes['button--alt']}>Close</button>
-                {isEmpty && <button className={classes.button} onClick={() => { console.log('ORDERING') }}>Order</button>}
-            </div>
+            {showForm && <UserForm onCancel={cancelCart} />}
+            {!showForm && actionButtons}
 
         </Modal>
 
